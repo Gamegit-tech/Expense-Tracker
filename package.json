@@ -1,5 +1,5 @@
 {
-  "name": "Expense-tracker",
+  "name": "expense-tracker",
   "private": true,
   "version": "0.0.1",
   "type": "module",
@@ -11,10 +11,11 @@
   },
   "dependencies": {
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "recharts": "^2.12.7"
   },
   "devDependencies": {
-    "@types/node": "^26.1.2",
+    "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",

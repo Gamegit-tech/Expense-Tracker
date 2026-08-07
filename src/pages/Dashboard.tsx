@@ -1,20 +1,21 @@
+import { useMemo } from "react";
 import SummaryCard from "@/components/ui/SummaryCard";
-import { summaryData } from "@/data/summary";
-import { Transaction } from "@/types";
-
-const recentTransactions: Transaction[] = [
-  { id: "1", title: "Grocery Store", category: "Food", amount: -84.5, type: "expense", date: "Aug 5, 2026" },
-  { id: "2", title: "Freelance Payment", category: "Income", amount: 1200, type: "income", date: "Aug 3, 2026" },
-  { id: "3", title: "Electric Bill", category: "Utilities", amount: -62.3, type: "expense", date: "Aug 2, 2026" },
-  { id: "4", title: "Gym Membership", category: "Health", amount: -45, type: "expense", date: "Aug 1, 2026" },
-];
+import EmptyState from "@/components/ui/EmptyState";
+import { useExpenses } from "@/context/ExpenseContext";
+import { useSummaryData } from "@/hooks/useSummaryData";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export default function Dashboard() {
+  const { expenses } = useExpenses();
+  const summaryData = useSummaryData(expenses);
+  const recentTransactions = useMemo(() => expenses.slice(0, 6), [expenses]);
+  const hasTransactions = recentTransactions.length > 0;
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Overview of your income, expenses, and balance.
         </p>
       </div>
@@ -25,36 +26,52 @@ export default function Dashboard() {
         ))}
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-gray-100 p-5">
-          <h2 className="text-base font-semibold text-gray-900">
+      <div className="rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+        <div className="flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-800">
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
             Recent Transactions
           </h2>
-          <a href="#" className="text-sm font-medium text-primary-600 hover:text-primary-700">
-            View all
-          </a>
         </div>
 
-        <ul className="divide-y divide-gray-100">
-          {recentTransactions.map((tx) => (
-            <li key={tx.id} className="flex items-center justify-between p-5">
-              <div>
-                <p className="text-sm font-medium text-gray-900">{tx.title}</p>
-                <p className="text-xs text-gray-500">
-                  {tx.category} • {tx.date}
-                </p>
-              </div>
-              <span
-                className={`text-sm font-semibold ${
-                  tx.type === "income" ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                {tx.type === "income" ? "+" : "-"}$
-                {Math.abs(tx.amount).toFixed(2)}
-              </span>
-            </li>
-          ))}
-        </ul>
+        {!hasTransactions && (
+          <div className="p-6">
+            <EmptyState
+              icon="wallet"
+              title="No transactions yet"
+              description="Add your first expense or income to see it here."
+            />
+          </div>
+        )}
+
+        {hasTransactions && (
+          <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+            {recentTransactions.map((tx) => {
+              const isIncome = tx.type === "income";
+              return (
+                <li key={tx.id} className="flex items-center justify-between p-5">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      {tx.title}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {tx.category} • {tx.date}
+                    </p>
+                  </div>
+                  <span
+                    className={
+                      isIncome
+                        ? "text-sm font-semibold text-green-600 dark:text-green-400"
+                        : "text-sm font-semibold text-red-600 dark:text-red-400"
+                    }
+                  >
+                    {isIncome ? "+" : "-"}
+                    {formatCurrency(tx.amount)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
