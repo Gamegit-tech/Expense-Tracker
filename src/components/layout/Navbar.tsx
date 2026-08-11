@@ -1,11 +1,13 @@
 import Icon from "@/components/ui/Icon";
 import ThemeToggle from "./ThemeToggle";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavbarProps {
   onMenuClick: () => void;
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
+  const { user, logout } = useAuth();
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6">
@@ -38,18 +40,17 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             <Icon name="bell" className="h-5 w-5" />
           </button>
 
-          <button className="flex items-center gap-2 rounded-lg border border-gray-200 py-1.5 pl-1.5 pr-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-950 dark:text-primary-300">
-              GD
-            </div>
+          <div className="flex items-center gap-2 rounded-lg border border-gray-200 py-1.5 pl-3 pr-1.5 dark:border-gray-700">
             <span className="hidden text-sm font-medium text-gray-700 dark:text-gray-300 sm:block">
-              Gamachis Desalegn
+              {user?.email}
             </span>
-            <Icon
-              name="chevron-down"
-              className="hidden h-4 w-4 text-gray-400 dark:text-gray-500 sm:block"
-            />
-          </button>
+            <button
+              onClick={logout}
+              className="rounded-md px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            >
+              Log out
+            </button>
+          </div>
         </div>
       </div>
     </header>

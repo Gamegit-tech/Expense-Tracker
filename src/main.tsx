@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
-import { ExpenseProvider } from "@/context/ExpenseContext";
+import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { ToastProvider } from "@/context/ToastContext";
 import ToastContainer from "@/components/ui/ToastContainer";
@@ -11,10 +11,10 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <ToastProvider>
-        <ExpenseProvider>
+        <AuthProvider>
           <App />
           <ToastContainer />
-        </ExpenseProvider>
+        </AuthProvider>
       </ToastProvider>
     </ThemeProvider>
   </StrictMode>

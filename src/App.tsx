@@ -1,6 +1,9 @@
 import { lazy, Suspense, useState } from "react";
 import Layout from "@/components/layout/Layout";
 import PageLoader from "@/components/ui/PageLoader";
+import AuthPage from "@/pages/AuthPage";
+import { useAuth } from "@/context/AuthContext";
+import { ExpenseProvider } from "@/context/ExpenseContext";
 import { View } from "@/types";
 
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
@@ -9,7 +12,16 @@ const Transactions = lazy(() => import("@/pages/Transactions"));
 const Reports = lazy(() => import("@/pages/Reports"));
 
 function App() {
+  const { user, isLoading } = useAuth();
   const [view, setView] = useState<View>("dashboard");
+
+  if (isLoading) {
+    return <PageLoader />;
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
 
   const renderView = () => {
     switch (view) {
@@ -25,9 +37,11 @@ function App() {
   };
 
   return (
-    <Layout activeView={view} onNavigate={setView}>
-      <Suspense fallback={<PageLoader />}>{renderView()}</Suspense>
-    </Layout>
+    <ExpenseProvider>
+      <Layout activeView={view} onNavigate={setView}>
+        <Suspense fallback={<PageLoader />}>{renderView()}</Suspense>
+      </Layout>
+    </ExpenseProvider>
   );
 }
 

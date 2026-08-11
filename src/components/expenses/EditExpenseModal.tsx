@@ -52,7 +52,7 @@ export default function EditExpenseModal({ expense, onClose }: EditExpenseModalP
     setFormData((prev) => (prev ? { ...prev, type } : prev));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!formData) return;
 
@@ -75,12 +75,16 @@ export default function EditExpenseModal({ expense, onClose }: EditExpenseModalP
       notes: formData.notes.trim() || undefined,
     };
 
-    updateExpense(updated);
-    setIsSubmitting(false);
-    showToast("Changes saved successfully.", "success");
-    onClose();
+    try {
+      await updateExpense(updated);
+      showToast("Changes saved successfully.", "success");
+      onClose();
+    } catch {
+      showToast("Could not save changes. Check your connection and try again.", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
   const inputClass = (hasError: boolean) =>
     `w-full rounded-lg border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition-colors focus:ring-2 dark:bg-gray-900 dark:text-gray-100 ${
       hasError

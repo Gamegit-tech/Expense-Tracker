@@ -45,7 +45,7 @@ export default function ExpenseForm() {
     setFormData((prev) => ({ ...prev, type }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const validationErrors = validateExpense(formData);
@@ -58,26 +58,30 @@ export default function ExpenseForm() {
 
     setIsSubmitting(true);
 
-    const newExpense: Expense = {
-      id: crypto.randomUUID(),
+    // NOTE: no "id" and no "createdAt" here anymore —
+    // the backend generates both when it saves to MongoDB.
+    const newExpenseData: Omit<Expense, "id" | "createdAt"> = {
       title: formData.title.trim(),
       amount: Number(formData.amount),
       category: formData.category as Expense["category"],
       type: formData.type,
       date: formData.date,
       notes: formData.notes.trim() || undefined,
-      createdAt: new Date().toISOString(),
     };
 
-    addExpense(newExpense);
-
-    setFormData({ ...initialFormData, date: formData.date, type: formData.type });
-    setErrors({});
-    setIsSubmitting(false);
-    showToast(
-      formData.type === "income" ? "Income added successfully." : "Expense added successfully.",
-      "success"
-    );
+    try {
+      await addExpense(newExpenseData);
+      setFormData({ ...initialFormData, date: formData.date, type: formData.type });
+      setErrors({});
+      showToast(
+        formData.type === "income" ? "Income added successfully." : "Expense added successfully.",
+        "success"
+      );
+    } catch {
+      showToast("Could not save. Check your connection and try again.", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {

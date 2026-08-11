@@ -13,6 +13,11 @@ export type ExpenseCategory =
 
 export type ExpenseType = "income" | "expense";
 
+export interface User {
+  id: string;
+  email: string;
+}
+
 export interface Expense {
   id: string;
   title: string;

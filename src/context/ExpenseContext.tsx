@@ -3,121 +3,118 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useReducer,
-  useRef,
+  useState,
   ReactNode,
 } from "react";
 import { Expense } from "@/types";
-import { seedExpenses } from "@/data/seedExpenses";
-import { loadExpenses, saveExpenses, clearStoredExpenses } from "@/utils/localStorage";
-
-interface ExpenseState {
-  expenses: Expense[];
-}
-
-type ExpenseAction =
-  | { type: "ADD_EXPENSE"; payload: Expense }
-  | { type: "UPDATE_EXPENSE"; payload: Expense }
-  | { type: "DELETE_EXPENSE"; payload: { id: string } }
-  | { type: "CLEAR_EXPENSES" }
-  | { type: "SET_EXPENSES"; payload: Expense[] };
+import {
+  fetchExpenses,
+  createExpenseApi,
+  updateExpenseApi,
+  deleteExpenseApi,
+} from "@/services/expenseApi";
 
 interface ExpenseContextValue {
   expenses: Expense[];
-  addExpense: (expense: Expense) => void;
-  updateExpense: (expense: Expense) => void;
-  deleteExpense: (id: string) => void;
-  clearExpenses: () => void;
+  isLoading: boolean;
+  error: string | null;
+  addExpense: (expense: Omit<Expense, "id" | "createdAt">) => Promise<void>;
+  updateExpense: (expense: Expense) => Promise<void>;
+  deleteExpense: (id: string) => Promise<void>;
+  refreshExpenses: () => Promise<void>;
   totalExpenses: number;
   totalIncome: number;
   balance: number;
 }
 
-function getInitialState(): ExpenseState {
-  const stored = loadExpenses();
-  return { expenses: stored ?? seedExpenses };
-}
-
-function expenseReducer(state: ExpenseState, action: ExpenseAction): ExpenseState {
-  switch (action.type) {
-    case "ADD_EXPENSE":
-      return { ...state, expenses: [action.payload, ...state.expenses] };
-    case "UPDATE_EXPENSE":
-      return {
-        ...state,
-        expenses: state.expenses.map((e) =>
-          e.id === action.payload.id ? action.payload : e
-        ),
-      };
-    case "DELETE_EXPENSE":
-      return {
-        ...state,
-        expenses: state.expenses.filter((e) => e.id !== action.payload.id),
-      };
-    case "CLEAR_EXPENSES":
-      return { ...state, expenses: [] };
-    case "SET_EXPENSES":
-      return { ...state, expenses: action.payload };
-    default:
-      return state;
-  }
-}
-
 const ExpenseContext = createContext<ExpenseContextValue | undefined>(undefined);
 
 export function ExpenseProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(expenseReducer, undefined, getInitialState);
-  const isFirstRender = useRef(true);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadExpenses = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const data = await fetchExpenses();
+      setExpenses(data);
+      localStorage.setItem("expense-tracker:last-known", JSON.stringify(data));
+    } catch (err) {
+      const cached = localStorage.getItem("expense-tracker:last-known");
+      if (cached) {
+        setExpenses(JSON.parse(cached));
+        setError("You're offline — showing your last saved data. Changes won't be saved until you're back online.");
+      } else {
+        setError("Could not load expenses. Is the server running?");
+      }
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
+    loadExpenses();
+  }, []);
+
+  const addExpense = async (expense: Omit<Expense, "id" | "createdAt">) => {
+    setError(null);
+    try {
+      const created = await createExpenseApi(expense);
+      setExpenses((prev) => [created, ...prev]);
+    } catch (err) {
+      setError("Failed to add expense.");
+      console.error(err);
+      throw err;
     }
-    saveExpenses(state.expenses);
-  }, [state.expenses]);
-
-  const addExpense = (expense: Expense) => {
-    dispatch({ type: "ADD_EXPENSE", payload: expense });
   };
 
-  const updateExpense = (expense: Expense) => {
-    dispatch({ type: "UPDATE_EXPENSE", payload: expense });
+  const updateExpense = async (expense: Expense) => {
+    setError(null);
+    try {
+      const updated = await updateExpenseApi(expense);
+      setExpenses((prev) => prev.map((e) => (e.id === updated.id ? updated : e)));
+    } catch (err) {
+      setError("Failed to update expense.");
+      console.error(err);
+      throw err;
+    }
   };
 
-  const deleteExpense = (id: string) => {
-    dispatch({ type: "DELETE_EXPENSE", payload: { id } });
-  };
-
-  const clearExpenses = () => {
-    dispatch({ type: "CLEAR_EXPENSES" });
-    clearStoredExpenses();
+  const deleteExpense = async (id: string) => {
+    setError(null);
+    try {
+      await deleteExpenseApi(id);
+      setExpenses((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) {
+      setError("Failed to delete expense.");
+      console.error(err);
+      throw err;
+    }
   };
 
   const totalIncome = useMemo(
-    () =>
-      state.expenses
-        .filter((e) => e.type === "income")
-        .reduce((sum, e) => sum + e.amount, 0),
-    [state.expenses]
+    () => expenses.filter((e) => e.type === "income").reduce((sum, e) => sum + e.amount, 0),
+    [expenses]
   );
 
   const totalExpenses = useMemo(
-    () =>
-      state.expenses
-        .filter((e) => e.type === "expense")
-        .reduce((sum, e) => sum + e.amount, 0),
-    [state.expenses]
+    () => expenses.filter((e) => e.type === "expense").reduce((sum, e) => sum + e.amount, 0),
+    [expenses]
   );
 
   const balance = totalIncome - totalExpenses;
 
   const value: ExpenseContextValue = {
-    expenses: state.expenses,
+    expenses,
+    isLoading,
+    error,
     addExpense,
     updateExpense,
     deleteExpense,
-    clearExpenses,
+    refreshExpenses: loadExpenses,
     totalExpenses,
     totalIncome,
     balance,
