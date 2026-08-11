@@ -8,7 +8,7 @@ export const validateObjectId = (
 ): void => {
   const { id } = req.params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
     res.status(400).json({
       message: "Invalid expense ID format",
     });
