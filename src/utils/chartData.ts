@@ -27,6 +27,7 @@ const categoryColors: Record<ExpenseCategory, string> = {
   Utilities: "#f59e0b",
   Entertainment: "#a855f7",
   Health: "#f43f5e",
+  Income: "#22c55e",
   Other: "#6b7280",
 };
 

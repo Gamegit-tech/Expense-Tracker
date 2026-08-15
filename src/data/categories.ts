@@ -9,5 +9,6 @@ export const expenseCategories: ExpenseCategory[] = [
   "Utilities",
   "Entertainment",
   "Health",
+  "Income",
   "Other",
 ];

@@ -9,6 +9,7 @@ export type ExpenseCategory =
   | "Utilities"
   | "Entertainment"
   | "Health"
+  | "Income"
   | "Other";
 
 export type ExpenseType = "income" | "expense";

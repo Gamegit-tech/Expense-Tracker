@@ -1,6 +1,8 @@
 import { SVGProps } from "react";
 
 export type IconName =
+  | "eye"
+  | "eye-off"
   | "home"
   | "list"
   | "chart"
@@ -26,6 +28,8 @@ interface IconProps extends SVGProps<SVGSVGElement> {
 }
 
 const paths: Record<IconName, string> = {
+  eye: "M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Zm10 3a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z",
+  "eye-off" : "M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.1A9.9 9.9 0 0 1 12 5c6.5 0 10 7 10 7a13.2 13.2 0 0 1-3.1 3.9M6.2 6.2C4 7.7 2 10 2 10s3.5 7 10 7c1.3 0 2.5-.2 3.6-.6",
   home: "M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5Z",
   list: "M4 6h16M4 12h16M4 18h10",
   chart: "M4 20V10m6 10V4m6 16v-7",

@@ -1,13 +1,16 @@
 import Icon from "@/components/ui/Icon";
 import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "@/context/AuthContext";
+import { useState } from "react";
+import LogoutConfirmModal from "./LogoutConfirmModal";
 
 interface NavbarProps {
   onMenuClick: () => void;
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
-  const { user, logout } = useAuth();
+  const { user} = useAuth();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   return (
     <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur dark:border-gray-800 dark:bg-gray-950/80">
       <div className="flex h-16 items-center justify-between px-4 lg:px-6">
@@ -45,7 +48,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
               {user?.email}
             </span>
             <button
-              onClick={logout}
+              onClick={() => setIsLogoutModalOpen(true)}
               className="rounded-md px-2 py-1 text-xs font-medium text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
             >
               Log out
@@ -53,6 +56,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           </div>
         </div>
       </div>
+      <LogoutConfirmModal isOpen={isLogoutModalOpen} onClose={() => setIsLogoutModalOpen(false)} />
     </header>
   );
 }

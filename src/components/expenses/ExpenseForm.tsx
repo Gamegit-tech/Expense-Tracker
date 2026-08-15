@@ -96,7 +96,9 @@ export default function ExpenseForm() {
           <Icon name="wallet" className="h-5 w-5" />
         </div>
         <div>
-          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">Add Expense</h2>
+          <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100">
+            Add Expense and Income
+          </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Log a new income or expense transaction.
           </p>
@@ -215,7 +217,7 @@ export default function ExpenseForm() {
             ) : (
               <Icon name="wallet" className="h-4 w-4" />
             )}
-            {isSubmitting ? "Adding..." : "Add Expense"}
+            {isSubmitting ? "Adding..." : formData.type === "income" ? "Add Income" : "Add Expense"}
           </button>
           <button
             type="button"

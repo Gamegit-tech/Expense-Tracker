@@ -10,6 +10,7 @@ const categoryStyles: Record<ExpenseCategory, string> = {
   Utilities: "bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300",
   Entertainment: "bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300",
   Health: "bg-rose-50 text-rose-700 dark:bg-rose-950 dark:text-rose-300",
+  Income: "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300",
   Other: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
 };
 

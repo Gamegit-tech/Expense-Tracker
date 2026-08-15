@@ -16,7 +16,7 @@ interface SidebarNavItem {
 
 const navItems: SidebarNavItem[] = [
   { id: "dashboard", label: "Dashboard", icon: "home" },
-  { id: "add-expense", label: "Add Expense", icon: "wallet" },
+  { id: "add-expense", label: "Add Expense and Income", icon: "wallet" },
   { id: "transactions", label: "Transactions", icon: "list" },
   { id: "reports", label: "Reports", icon: "chart" },
 ];
